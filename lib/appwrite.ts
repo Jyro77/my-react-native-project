@@ -1,3 +1,4 @@
+import { VideoResponse } from "@/interfaces/response";
 import {
     Account,
     Avatars,
@@ -17,13 +18,23 @@ export const appwriteConfig = {
     storageId: "66aaef900004616dd277",
 };
 
+const {
+    endpoint,
+    Platform,
+    projectId,
+    databaseId,
+    userCollectionId,
+    videoCollectionId,
+    storageId,
+} = appwriteConfig;
+
 // Init your React Native SDK
 const client = new Client();
 
 client
-    .setEndpoint(appwriteConfig.endpoint) // Your Appwrite Endpoint
-    .setProject(appwriteConfig.projectId) // Your project ID
-    .setPlatform(appwriteConfig.Platform); // Your application ID or bundle ID.
+    .setEndpoint(endpoint) // Your Appwrite Endpoint
+    .setProject(projectId) // Your project ID
+    .setPlatform(Platform); // Your application ID or bundle ID.
 
 const account = new Account(client);
 const avatars = new Avatars(client);
@@ -49,8 +60,8 @@ export async function createUser(
         await signIn(email, password);
 
         const newUser = await databases.createDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
+            databaseId,
+            userCollectionId,
             ID.unique(),
             {
                 accountId: newAccount.$id,
@@ -88,8 +99,8 @@ export async function getCurrentUser() {
         if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.userCollectionId,
+            databaseId,
+            userCollectionId,
             [Query.equal("accountId", currentAccount.$id)],
         );
 
@@ -98,5 +109,35 @@ export async function getCurrentUser() {
         return currentUser.documents[0];
     } catch (error) {
         console.error(error);
+    }
+}
+
+export async function getAllPosts(): Promise<VideoResponse[]> {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+        );
+
+        return posts.documents as VideoResponse[];
+    } catch (error) {
+        console.error(error);
+        throw new Error("Error getting all videos");
+    }
+}
+
+export async function getLatestPosts(): Promise<VideoResponse[]> {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            //@ts-ignore
+            [Query.orderDesc("$createdAt", Query.limit(7))],
+        );
+
+        return posts.documents as VideoResponse[];
+    } catch (error) {
+        console.error(error);
+        throw new Error("Error getting all videos");
     }
 }

@@ -42,13 +42,16 @@ const TrendingItem = ({ activeItem, item }) => {
             {play ? (
                 <Video
                     source={{
-                        uri: item.video,
+                        uri: "https://cloud.appwrite.io/v1/storage/buckets/66aaef900004616dd277/files/66ac39c2000181bbf9f8/view?project=66aaeca800165bc2e1f6&mode=admin",
+                        //uri: "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+                        //uri: item.video,
                         //uri: assets[0].uri
                     }}
+                    //onLoad={() => console.log("on load")}
                     className='w-52 h-72 rounded-[35px] mt-3 bg-white/10'
                     resizeMode={ResizeMode.CONTAIN}
                     useNativeControls
-                    shouldPlay
+                    shouldPlay={true}
                     onPlaybackStatusUpdate={status => {
                         //@ts-ignore
                         if (status.didJustFinish) {
